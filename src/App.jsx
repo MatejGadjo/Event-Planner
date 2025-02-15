@@ -8,8 +8,6 @@ import AddResource from './pages/AddResource'
 import EventDetail from './pages/EventDetail'
 
 function App() {
-  
-
   return (
     <>
       <BrowserRouter>

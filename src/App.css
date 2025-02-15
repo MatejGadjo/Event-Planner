@@ -1,42 +1,27 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat');
+
 #root {
-  max-width: 1280px;
+  /*max-width: 1280px;*/
+  width: 100vw;
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  padding: 0;
+  /*text-align: center;*/
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
+:root {
+  --navbar-height: 4rem;
+  --navbar-button-height: 2.2rem;
+  --tabs-row-height: 2rem;
+  --sidebar-width: 6rem;
+  --search-input-height: 2rem;
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+/*  COLORS  */
+  --color-0: #242649;
+  --color-1: #222B68;
+  --color-2: #2d3c7e;
+  --color-3: #356094;
+  --color-4: #52748f;
+  --color-5: #b5c3d3;
+  --color-6: #cbd8e5;
+  --color-7: #eceff3;
 }
