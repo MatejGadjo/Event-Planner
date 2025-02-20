@@ -5,7 +5,7 @@ const Home = () => {
     return (
         <div className="event-container">
             <div className="home-left-side">
-                <div className="logo-home">LOGO</div>
+                <div className="logo-home">E·QUIP<sup> мк</sup></div>
                 <h1 className="home-header">
                     ОРГАНИЗИРАШ <span className="highlight">НАСТАН?</span> <br />
                     ИМАШ ПОТРЕБА ОД <span className="highlight">РЕСУРС?</span>
@@ -15,7 +15,7 @@ const Home = () => {
                     потреби да дојдат до вас.
                 </p>
                 <a href="/createevent"><button className="btn-primary">ОГЛАСИ НАСТАН</button></a>
-                <a href="/eventlist" className="event-list-link">
+                <a href="/events/public" className="event-list-link">
                     ПРЕБАРУВАЈ НАСТАНИ
                 </a>
             </div>

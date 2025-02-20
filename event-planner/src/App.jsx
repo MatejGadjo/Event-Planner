@@ -6,6 +6,7 @@ import UserList from './pages/UsersList'
 import Register from './pages/Register'
 import AddResource from './pages/AddResource'
 import EventDetail from './pages/EventDetail'
+import Profile from "./pages/Profile.jsx";
 
 function App() {
   return (
@@ -13,8 +14,10 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path='/' element={<Home />}/>
-          <Route path='/eventlist' element={<EventList />} />
-          <Route path='/userslist' element={<UserList />} />
+          <Route path='/profile' element={<Profile />}/>
+          <Route path='/events/public' element={<EventList />} />
+          <Route path='/events/private' element={<EventList />} />
+          <Route path='/users' element={<UserList />} />
           <Route path='/register' element={<Register />} />
           <Route path='/addresource' element={<AddResource />} />
           <Route path='/eventdetail' element={<EventDetail />} />

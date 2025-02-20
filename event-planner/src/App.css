@@ -5,7 +5,12 @@
   width: 100vw;
   margin: 0 auto;
   padding: 0;
+  font-family: "Montserrat";
   /*text-align: center;*/
+}
+
+*::-webkit-scrollbar {
+  display: none;
 }
 
 :root {
@@ -15,13 +20,27 @@
   --sidebar-width: 6rem;
   --search-input-height: 2rem;
 
-/*  COLORS  */
+/*  COLORS -LIGHT */
   --color-0: #242649;
   --color-1: #222B68;
   --color-2: #2d3c7e;
   --color-3: #356094;
-  --color-4: #52748f;
+  --color-4: #5c82ad;
   --color-5: #b5c3d3;
   --color-6: #cbd8e5;
   --color-7: #eceff3;
+
+  /*  COLORS -Dark */
+/*  --color-6: #242649;
+  --color-7: #222B68;
+  --color-5: #2d3c7e;
+  --color-4: #356094;
+  --color-3: #5c82ad;
+  --color-2: #b5c3d3;
+  --color-1: #cbd8e5;
+  --color-0: #eceff3;*/
+
+  --radius-small: 0.4rem;
+  --radius-medium: 0.7rem;
+  --radius-big: 1rem;
 }

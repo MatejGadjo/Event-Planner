@@ -1,0 +1,86 @@
+.whole-container {
+    display: flex;
+    margin: 5rem 8rem;
+}
+
+.profile-info-box {
+    display: block;
+    width: 70%;
+}
+
+.profile-items-section {
+    display: flex;
+}
+
+.profile-greetings {
+    display: flex;
+}
+
+.profile-events-box {
+    overflow: hidden;
+    height: 100%;
+    background-color: var(--color-7);
+    min-width: 30%;
+    max-height: 40rem;
+    margin: 0 4rem;
+    border-radius: var(--radius-big);
+}
+
+.profile-create-button, .profile-add-button {
+    border-radius: var(--radius-small);
+    display: flex;
+    float: right;
+    margin: auto 1rem auto auto;
+    width: 14rem;
+    height: 4rem;
+    background-color: var(--color-4);
+    color: var(--color-6);
+    font-size: 1.4rem;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-create-button:hover, .profile-add-button:hover {
+    height: 5rem;
+    background-color: var(--color-3);
+    color: var(--color-7);
+}
+
+.item-cards-grid {
+    display: flex;
+    overflow-x: scroll;
+}
+
+.event-cards-carousel {
+    display: flex;
+    overflow-x: scroll;
+}
+
+.item-placeholder {
+    display: block;
+    background-color: var(--color-7);
+    border-radius: var(--radius-small);
+    min-width: 6rem;
+    min-height: 6rem;
+    margin: 0 1rem 0 0 ;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-info-section p {
+    font-size: 0.7rem;
+}
+
+.ticket-placeholder {
+    background-color: var(--color-7);
+    min-height: 3rem;
+    border-radius: var(--radius-big);
+    padding: 0.2rem 1rem;
+    margin: auto;
+}
+
+.ticket-title-placeholder {
+    width: 100%;
+}

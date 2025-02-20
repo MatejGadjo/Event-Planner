@@ -1,22 +1,16 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat');
+
+* {
+    font-family: "Montserrat";
+}
+
 .app-container {
-    font-family: Arial, sans-serif;
     background-color: var(--color-6);
     color: var(--color-4);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
-/*
-.navbar {
-    display: flex;
-    width: 100%;
-    height: var(--navbar-height);
-    position: fixed;
-    top: 0;
-    align-items: center;
-    justify-content: space-between;
-    background-color: var(--color-5);
-}*/
 
 .navbar {
     display: flex;
@@ -40,14 +34,7 @@
 sup {
     font-size: 0.8rem;
 }
-/*
-.search-bar {
-    display: flex;
-    flex-grow: 1;
-    justify-content: center;
-    align-items: center;
-    max-width: 35rem;
-}*/
+
 .search-bar {
     display: flex;
     flex-grow: 1;
@@ -63,7 +50,7 @@ sup {
     padding: 0.4rem 1rem;
     border: 1px solid var(--color-6);
     border-right: 0;
-    border-radius: var(--search-input-height) 0 0 var(--search-input-height);
+    border-radius: var(--radius-big) 0 0 var(--radius-big);
     background-color: var(--color-7);
     color: var(--color-2);
 }
@@ -78,7 +65,7 @@ sup {
     color: var(--color-5);
     border: 1px solid var(--color-6);
     border-left: 0;
-    border-radius: 0 var(--search-input-height) var(--search-input-height) 0;
+    border-radius: 0 var(--radius-medium) var(--radius-medium) 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -105,7 +92,7 @@ sup {
     text-align: center;
     justify-content: center;
     align-items: center;
-    border-radius: calc(var(--navbar-button-height)/2);
+    border-radius: var(--radius-medium);
 }
 
 .navbar-button:hover, .notification-button:hover {
@@ -124,7 +111,7 @@ sup {
     text-align: center;
     justify-content: center;
     align-items: center;
-    border-radius: calc(var(--navbar-button-height)/2);
+    border-radius: var(--radius-medium);
 }
 
 .tabs-row {
@@ -145,6 +132,7 @@ sup {
     background-color: var(--color-6);
     color: var(--color-1);
     border: none;
+    border-radius: var(--radius-small);
     cursor: pointer;
     white-space: nowrap;
 }
@@ -165,22 +153,18 @@ sup {
     width: var(--sidebar-width);
 
     background-color: var(--color-7);
-    top: calc(var(--navbar-height));
+    top: var(--navbar-height);
 
     align-items: center;
     text-align: center;
+    overflow: hidden;
 
     z-index: 10;
 }
 
-.sidenav-button:nth-child(2) {
-    background-color: var(--color-6);
-    border-left: 6px solid var(--color-4);
-
-}
 .sidenav-button {
     display: flex;
-    width: 140%;
+    margin: auto;
     flex-direction: column;
     background-color: transparent;
     color: var(--color-1);
@@ -188,17 +172,21 @@ sup {
     justify-content: center;
     text-align: center;
     cursor: pointer;
-    margin-left: -20%;
-    padding: 1rem 0 1rem 0;
+    padding: 1rem 0.6rem;
 }
 
 .sidenav-button:focus {
     border-left: 6px solid var(--color-4);
 }
 
-
 .sidenav-button:hover {
     background-color: var(--color-5);
+}
+
+.sidenav-button.active {
+    background: linear-gradient(90deg, var(--color-4) 6%, var(--color-6) 6%, var(--color-6) 100%);
+    /*background-color: var(--color-6);*/
+    /*border-left: 6px solid var(--color-4);*/
 }
 
 .sidebar-tab-icon {
@@ -213,10 +201,10 @@ sup {
 
 .sidenav-button p {
     margin: 1rem 0 0 0 ;
-    font-size: 14px;
+    font-size: 0.8rem;
 }
 
-.video-grid {
+.cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
     gap: 1.2rem;
@@ -225,14 +213,11 @@ sup {
     margin-left: var(--sidebar-width);
 }
 
-.video-placeholder {
+.card-placeholder {
     background-color: var(--color-7);
     min-height: 15rem;
-    /*display: flex;*/
-    /*align-items: center;*/
-    /*justify-content: center;*/
     font-size: 1rem;
-    border-radius: 1rem;
+    border-radius: var(--radius-big);
     padding: 0.2rem 1rem;
 }
 
@@ -278,6 +263,7 @@ sup {
 .card-date-placeholder {
     padding-left: 1.5rem;
 }
+
 .card-title-placeholder {
     padding-right: 0.5rem;
 }
@@ -294,12 +280,11 @@ sup {
 
 .card-pill{
     float: left;
-/*    background-color: var(--color-4);*/
     border: 2px solid var(--color-4);
     color: var(--color-2);
     padding: 0.1rem 0.4rem;
     margin: 0.2rem;
-    border-radius: calc(var(--navbar-button-height)/8);
+    border-radius: var(--radius-small);
 }
 
 .card-pill span {
@@ -307,5 +292,5 @@ sup {
     color: var(--color-3);
     margin-left: 0.4rem;
     padding: 0 0.4rem;
-    border-radius: calc(var(--navbar-button-height)/8);
+    border-radius: var(--radius-small);;
 }

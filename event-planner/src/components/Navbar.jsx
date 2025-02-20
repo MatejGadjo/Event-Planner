@@ -3,7 +3,7 @@ import React from 'react';
 const Navbar = () => {
     return (
         <nav className="navbar">
-            <div className="logo">LOGO</div>
+            <div><a href='/' className="logo">E·QUIP<sup> мк</sup></a></div>
             <div className="search-bar">
                 <input type="text" placeholder="Search" className="search-input" />
                 <button className="search-button">
@@ -15,8 +15,8 @@ const Navbar = () => {
                 </button>
             </div>
             <div className={"navbar-buttons"}>
-                <div className={"navbar-button"}>
-                    НАЈАВИ СЕ</div>
+                <a href="/register" className={"navbar-button"}>
+                    НАЈАВИ СЕ</a>
                 <div className={"notification-button"}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                          className="bi bi-bell" viewBox="0 0 16 16">
