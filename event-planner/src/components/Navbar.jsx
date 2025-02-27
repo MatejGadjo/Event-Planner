@@ -1,6 +1,7 @@
 import React from 'react';
+import Logout from "../pages/Logout.jsx";
 
-const Navbar = () => {
+const Navbar = ({ user}) => {
     return (
         <nav className="navbar">
             <div><a href='/' className="logo">E·QUIP<sup> мк</sup></a></div>
@@ -14,9 +15,20 @@ const Navbar = () => {
                     </svg>
                 </button>
             </div>
+
             <div className={"navbar-buttons"}>
-                <a href="/register" className={"navbar-button"}>
-                    НАЈАВИ СЕ</a>
+
+                {user? (
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                        <strong>Здраво, <a href="/profile">{user.email} </a> </strong>
+                        <Logout/>
+                    </div>
+                ) : (
+                    <a href="/login" className={"navbar-button"}>
+                        НАЈАВИ СЕ</a>
+                )}
+
+
                 <div className={"notification-button"}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                          className="bi bi-bell" viewBox="0 0 16 16">

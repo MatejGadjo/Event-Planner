@@ -7,10 +7,10 @@ import UserGrid from "../components/UserGrid.jsx";
 import "./css/UserList.css";
 import "../App.css";
 
-const UserList = () => {
+const UserList = ({ user }) => {
     return (
         <div className="app-container">
-            <Navbar></Navbar>
+            <Navbar user={user}></Navbar>
             <div className={"main-container"}>
                 <Sidebar></Sidebar>
                 <UserGrid></UserGrid>

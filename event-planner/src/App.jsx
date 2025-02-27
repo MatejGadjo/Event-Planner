@@ -7,22 +7,41 @@ import Register from './pages/Register'
 import AddResource from './pages/AddResource'
 import EventDetail from './pages/EventDetail'
 import Profile from "./pages/Profile.jsx";
+import Login from "./pages/Login.jsx";
+import {onAuthStateChanged} from "firebase/auth";
+import { auth } from "./Firebase/firebase.jsx";
+import {useEffect, useState} from "react";
+import {AuthProvider} from "./Firebase/AuthContext.jsx";
 
 function App() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+
+    return () => unsubscribe();
+  }, []);
   return (
     <>
+      <AuthProvider>
+
       <BrowserRouter>
         <Routes>
           <Route path='/' element={<Home />}/>
-          <Route path='/profile' element={<Profile />}/>
-          <Route path='/events/public' element={<EventList />} />
-          <Route path='/events/private' element={<EventList />} />
-          <Route path='/users' element={<UserList />} />
+          <Route path='/profile' element={<Profile user={user}/>}/>
+          <Route path='/events/public' element={<EventList user={user} />} />
+          <Route path='/events/private' element={<EventList user={user}/>} />
+          <Route path='/users' element={<UserList user={user}/>} />
+
           <Route path='/register' element={<Register />} />
+          <Route path="/login" element={<Login />}/>
           <Route path='/addresource' element={<AddResource />} />
           <Route path='/eventdetail' element={<EventDetail />} />
         </Routes>
       </BrowserRouter>
+      </AuthProvider>
     </>
   )
 }

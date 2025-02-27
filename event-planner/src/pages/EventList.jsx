@@ -7,10 +7,10 @@ import EventGrid from "../components/EventGrid";
 import "./css/EventList.css";
 import "../App.css";
 
-const EventList = () => {
+const EventList = ({ user }) => {
     return (
         <div className="app-container">
-            <Navbar></Navbar>
+            <Navbar user={user}></Navbar>
             <div className={"main-container"}>
                 <div>
                     <Tabs></Tabs>
