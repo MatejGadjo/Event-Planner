@@ -1,11 +1,27 @@
 const express = require('express');
+const cors = require('cors');
+const { Pool } = require('pg');
+
 const app = express();
 const PORT = 3000;
 
-// Middleware to parse JSON requests
+// Middleware
+app.use(cors());
 app.use(express.json());
 
-// Routes
+// PostgreSQL Connection
+const pool = new Pool({
+  user: 'postgres',
+  host: 'localhost',
+  database: 'event-planner-db',
+  password: 'postgres',
+  port: 5432, // Default PostgreSQL port
+});
+
+// Test database connection
+pool.connect()
+  .then(() => console.log('Connected to PostgreSQL'))
+  .catch(err => console.error('Connection error', err.stack));
 
 // Home route
 app.get('/', (req, res) => {
@@ -13,61 +29,92 @@ app.get('/', (req, res) => {
 });
 
 // Create an event
-app.post('/events', (req, res) => {
+app.post('/events', async (req, res) => {
     const { name, date, location, description } = req.body;
     if (!name || !date || !location) {
         return res.status(400).json({ message: 'Name, date, and location are required' });
     }
 
-    // Simulate saving to the database
-    const event = { id: Date.now(), name, date, location, description };
+    try {
+        const newEvent = await pool.query(
+            'INSERT INTO events (name, date, location, description) VALUES ($1, $2, $3, $4) RETURNING *',
+            [name, date, location, description]
+        );
 
-    // Respond with the created event
-    res.status(201).json({ message: 'Event created successfully', event });
+        res.status(201).json({ message: 'Event created successfully', event: newEvent.rows[0] });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
 });
 
 // Get all events
-app.get('/events', (req, res) => {
-    // Simulate fetching from the database
-    const events = [
-        { id: 1, name: 'Birthday Party', date: '2025-03-01', location: 'New York', description: 'A fun birthday celebration.' },
-        { id: 2, name: 'Wedding', date: '2025-05-15', location: 'Los Angeles', description: 'A beautiful wedding ceremony.' },
-    ];
-
-    res.json(events);
+app.get('/events', async (req, res) => {
+    try {
+        const events = await pool.query('SELECT * FROM events');
+        res.json(events.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
 });
 
 // Get an event by ID
-app.get('/events/:id', (req, res) => {
+app.get('/events/:id', async (req, res) => {
     const { id } = req.params;
 
-    // Simulate fetching from the database
-    const event = { id, name: 'Sample Event', date: '2025-03-01', location: 'New York', description: 'A sample event description.' };
+    try {
+        const event = await pool.query('SELECT * FROM events WHERE id = $1', [id]);
 
-    if (!event) {
-        return res.status(404).json({ message: 'Event not found' });
+        if (event.rows.length === 0) {
+            return res.status(404).json({ message: 'Event not found' });
+        }
+
+        res.json(event.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
     }
-
-    res.json(event);
 });
 
 // Update an event
-app.put('/events/:id', (req, res) => {
+app.put('/events/:id', async (req, res) => {
     const { id } = req.params;
     const { name, date, location, description } = req.body;
 
-    // Simulate updating the database
-    const updatedEvent = { id, name, date, location, description };
+    try {
+        const updatedEvent = await pool.query(
+            'UPDATE events SET name = $1, date = $2, location = $3, description = $4 WHERE id = $5 RETURNING *',
+            [name, date, location, description, id]
+        );
 
-    res.json({ message: 'Event updated successfully', updatedEvent });
+        if (updatedEvent.rows.length === 0) {
+            return res.status(404).json({ message: 'Event not found' });
+        }
+
+        res.json({ message: 'Event updated successfully', event: updatedEvent.rows[0] });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
 });
 
 // Delete an event
-app.delete('/events/:id', (req, res) => {
+app.delete('/events/:id', async (req, res) => {
     const { id } = req.params;
 
-    // Simulate deletion from the database
-    res.json({ message: `Event with ID ${id} deleted successfully` });
+    try {
+        const deletedEvent = await pool.query('DELETE FROM events WHERE id = $1 RETURNING *', [id]);
+
+        if (deletedEvent.rows.length === 0) {
+            return res.status(404).json({ message: 'Event not found' });
+        }
+
+        res.json({ message: `Event with ID ${id} deleted successfully` });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
 });
 
 // Start the server
