@@ -7,6 +7,7 @@ import Register from './pages/Register'
 import AddResource from './pages/AddResource'
 import EventDetail from './pages/EventDetail'
 import Profile from "./pages/Profile.jsx";
+import ListItems from "./components/Example/ListItems.jsx";
 import Login from "./pages/Login.jsx";
 import {onAuthStateChanged} from "firebase/auth";
 import { auth } from "./Firebase/firebase.jsx";
@@ -39,6 +40,8 @@ function App() {
           <Route path="/login" element={<Login />}/>
           <Route path='/addresource' element={<AddResource />} />
           <Route path='/eventdetail' element={<EventDetail />} />
+
+          <Route path='/list' element={<ListItems />} />
         </Routes>
       </BrowserRouter>
       </AuthProvider>

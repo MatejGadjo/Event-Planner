@@ -28,6 +28,55 @@ app.get('/', (req, res) => {
     res.send('Welcome to the Event Planner API');
 });
 
+//// ITEMS API
+// Get all items
+app.get('/api/items', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM items_table');
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Database query failed' });
+    }
+});
+
+// Get items by category
+app.get('/api/items/category/:category_id', async (req, res) => {
+    try {
+        const { category_id } = req.params;
+        const result = await pool.query('SELECT * FROM items_table WHERE category_id = $1', [category_id]);
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Database query failed' });
+    }
+});
+
+// Get items by subcategory
+app.get('/api/items/subcategory/:subcategory_id', async (req, res) => {
+    try {
+        const { subcategory_id } = req.params;
+        const result = await pool.query('SELECT * FROM items_table WHERE subcategory_id = $1', [subcategory_id]);
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Database query failed' });
+    }
+});
+
+
+//// EVENTS API
+// Get all events
+app.get('/events', async (req, res) => {
+    try {
+        const events = await pool.query('SELECT * FROM events');
+        res.json(events.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
 // Create an event
 app.post('/events', async (req, res) => {
     const { name, date, location, description } = req.body;
@@ -48,16 +97,6 @@ app.post('/events', async (req, res) => {
     }
 });
 
-// Get all events
-app.get('/events', async (req, res) => {
-    try {
-        const events = await pool.query('SELECT * FROM events');
-        res.json(events.rows);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
-    }
-});
 
 // Get an event by ID
 app.get('/events/:id', async (req, res) => {
