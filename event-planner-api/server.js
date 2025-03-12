@@ -13,7 +13,7 @@ app.use(express.json());
 const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
-  database: 'event-planner-db',
+  database: 'event_planner_db',
   password: 'postgres',
   port: 5432, // Default PostgreSQL port
 });
