@@ -156,6 +156,65 @@ app.delete('/events/:id', async (req, res) => {
     }
 });
 
+//// 🔹 NOTIFICATIONS API ////
+
+// Create a notification (when someone offers an item)
+app.post('/api/notifications', async (req, res) => {
+    const { user_id, message } = req.body;
+
+    if (!user_id || !message) {
+        return res.status(400).json({ error: 'User ID and message are required' });
+    }
+
+    try {
+        const result = await pool.query(
+            'INSERT INTO notifications (user_id, message) VALUES ($1, $2) RETURNING *',
+            [user_id, message]
+        );
+        res.status(201).json(result.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Database error' });
+    }
+});
+
+// Get notifications for a user
+app.get('/api/notifications/:user_id', async (req, res) => {
+    const { user_id } = req.params;
+
+    try {
+        const result = await pool.query(
+            'SELECT * FROM notifications WHERE user_id = $1 ORDER BY created_at DESC',
+            [user_id]
+        );
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Database error' });
+    }
+});
+
+// Mark notifications as read
+app.put('/api/notifications/:id/read', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const result = await pool.query(
+            'UPDATE notifications SET is_read = TRUE WHERE id = $1 RETURNING *',
+            [id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Notification not found' });
+        }
+
+        res.json({ message: 'Notification marked as read', notification: result.rows[0] });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Database error' });
+    }
+});
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
