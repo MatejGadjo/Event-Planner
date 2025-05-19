@@ -1,58 +1,164 @@
 .app-container {
-    font-family: Arial, sans-serif;
-    background-color: var(--color-6);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(135deg, var(--color-6) 0%, #f8f9fa 100%);
     color: var(--color-4);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-}
-
-.cards-user-grid{
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-    gap: 1.2rem;
-    padding: 1.2rem;
-    margin-top: var(--navbar-height);
-    margin-left: var(--sidebar-width);
-}
-
-.card-user-placeholder {
-    background-color: var(--color-7);
-    min-height: 16rem;
-    font-size: 1rem;
-    border-radius: 1rem;
-    padding: 0.2rem 1rem;
-    align-items: center;
-    justify-content: center;
-    margin-top: 3rem;
-}
-
-.card-user-image {
-    margin: -3rem auto -3.5rem auto;
-    background-color: var(--color-7);
-    width: 6rem;
-    height: 6rem;
-    border-radius: 50%;
-    border: 4px solid var(--color-3);
-}
-
-.card-user-top-section {
-    display: block;
-    margin-top: 4rem;
-    max-height: 16rem;
     width: 100%;
+    overflow-x: hidden;
+}
+
+.cards-user-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: clamp(1rem, 2vw, 2rem);
+    padding: clamp(1rem, 3vw, 2rem);
+    margin: var(--navbar-height) auto 0;
+    max-width: 2000px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.user-card {
+    background: white;
+    border-radius: clamp(12px, 2vw, 16px);
+    padding: clamp(1.25rem, 3vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.75rem, 2vw, 1rem);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    position: relative;
     overflow: hidden;
+    height: 100%;
+    min-height: 200px;
 }
 
+.user-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
 
-.card-user-name, .card-user-surname, .card-user-contact {
+.user-info {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.25rem, 1vw, 0.5rem);
+    flex: 1;
+}
+
+.user-name {
+    font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+    font-weight: 600;
+    color: var(--color-4);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.user-surname {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    font-weight: 500;
+    color: var(--color-4);
+    opacity: 0.9;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.user-contact {
+    font-size: clamp(0.875rem, 1.5vw, 1rem);
+    color: var(--color-4);
+    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: auto;
+}
+
+.user-contact svg {
+    width: clamp(14px, 1.5vw, 16px);
+    height: clamp(14px, 1.5vw, 16px);
+    flex-shrink: 0;
+}
+
+.details-button {
+    margin-top: auto;
+    padding: clamp(0.6rem, 1.5vw, 0.75rem) clamp(1rem, 2vw, 1.5rem);
+    background: linear-gradient(135deg, var(--color-3) 0%, var(--color-7) 100%);
+    color: white;
+    border: none;
+    border-radius: clamp(6px, 1vw, 8px);
+    font-weight: 500;
+    font-size: clamp(0.875rem, 1.5vw, 1rem);
+    cursor: pointer;
+    transition: all 0.3s ease;
     text-align: center;
+    text-decoration: none;
+    width: 100%;
 }
 
-.card-user-surname {}
+.details-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
 
-.card-user-contact {}
+/* Responsive Design */
+@media (max-width: 1600px) {
+    .cards-user-grid {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+}
 
-.card-user-button {
-    margin: auto;
+@media (max-width: 1200px) {
+    .cards-user-grid {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+}
+
+@media (max-width: 992px) {
+    .cards-user-grid {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .cards-user-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .user-card {
+        min-height: 180px;
+    }
+}
+
+@media (max-width: 576px) {
+    .cards-user-grid {
+        grid-template-columns: 1fr;
+        padding: 0.75rem;
+    }
+
+    .user-card {
+        min-height: 160px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .cards-user-grid {
+        display: block;
+        padding: 0;
+    }
+
+    .user-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        margin-bottom: 1rem;
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+
+    .details-button {
+        display: none;
+    }
 }

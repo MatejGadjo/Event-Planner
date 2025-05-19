@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
+import ContactPopup from './ContactPopup';
+import './css/EventCard.css';
 
 const EventCard = ({index}) => {
+    const [showPopup, setShowPopup] = useState(false);
+
     return (
-        <div key={index} className="event-card">
+        <div className="event-card">
             <div className="event-card-header">
                 <div className="event-date">
                     <span className="event-day">Пон</span>
@@ -46,7 +50,10 @@ const EventCard = ({index}) => {
                 </div>
                 <div className="event-actions">
                     <span className="offers-count">0 понуди</span>
-                    <button className="offer-button">
+                    <button 
+                        className="offer-button" 
+                        onClick={() => setShowPopup(true)}
+                    >
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-plus-circle" viewBox="0 0 16 16">
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
                             <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
@@ -55,8 +62,32 @@ const EventCard = ({index}) => {
                     </button>
                 </div>
             </div>
+            {showPopup && (
+                <div className="popup-overlay">
+                    <div className="popup-content">
+                        <button className="close-button" onClick={() => setShowPopup(false)}>×</button>
+                        <h2>Контактирај го креаторот</h2>
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
+                            setShowPopup(false);
+                        }}>
+                            <div className="form-group">
+                                <label htmlFor="message">Вашата порака:</label>
+                                <textarea
+                                    id="message"
+                                    placeholder="Напишете ја вашата порака тука..."
+                                    required
+                                />
+                            </div>
+                            <button type="submit" className="submit-button">
+                                Испрати
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
-export default EventCard;
+export default EventCard; 

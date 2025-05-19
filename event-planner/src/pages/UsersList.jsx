@@ -10,10 +10,14 @@ import "../App.css";
 const UserList = ({ user }) => {
     return (
         <div className="app-container">
-            <Navbar user={user}></Navbar>
-            <div className={"main-container"}>
-                <Sidebar></Sidebar>
-                <UserGrid></UserGrid>
+            <Navbar user={user} />
+            <div className="main-container">
+                <Sidebar />
+                <div className="profile-main-card">
+                    <div className="whole-container">
+                        <UserGrid />
+                    </div>
+                </div>
             </div>
         </div>
     );

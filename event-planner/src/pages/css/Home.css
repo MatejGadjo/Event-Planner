@@ -1,83 +1,201 @@
 .event-container {
     display: flex;
-    height: 100vh;
-    background-color: var(--color-2);
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--color-2) 0%, var(--color-1) 100%);
     color: var(--color-7);
     width: 100%;
+    position: relative;
+    overflow: hidden;
 }
 
 .home-left-side {
     flex: 1;
-    padding-left: 10%;
+    padding: 5% 10%;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    position: relative;
+    z-index: 2;
+}
+
+.hero-content {
+    max-width: 600px;
 }
 
 .logo-home {
-    font-size: 1.5rem;
-    font-weight: bold;
+    font-size: 2rem;
+    font-weight: 800;
     color: var(--color-7);
-    padding-bottom: 10%;
-    font-family: 'Montserrat';
+    padding-bottom: 5%;
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: 1px;
 }
 
 .home-header {
-    font-size: 36px;
+    font-size: 3.5rem;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    font-weight: 800;
 }
 
 .highlight {
     color: var(--color-5);
+    position: relative;
+    display: inline-block;
+}
+
+.highlight::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 8px;
+    background-color: var(--color-5);
+    opacity: 0.2;
+    z-index: -1;
 }
 
 .home-description {
-    margin-top: 20px;
-    font-size: 18px;
+    margin-top: 1.5rem;
+    font-size: 1.25rem;
     line-height: 1.6;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 2.5rem;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
 }
 
 .btn-primary {
-    margin-top: 1.5rem;
-    padding: 1rem 1.5rem;
+    padding: 1rem 2rem;
     background-color: var(--color-4);
     color: white;
     border: none;
     border-radius: 0.8rem;
     cursor: pointer;
-    font-size: 18px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .btn-primary:hover {
     background-color: var(--color-3);
-    color: var(--color-5);
-}
-.event-list-link:hover {
-    color: var(--color-7);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
-.event-list-link {
-    position: absolute;
-    bottom: 0;
-    padding-bottom: 4%;
-    display: inline-block;
-    color: var(--color-5);
-    font-size: 16px;
+.btn-secondary {
+    padding: 1rem 2rem;
+    background-color: transparent;
+    color: var(--color-7);
+    border: 2px solid var(--color-7);
+    border-radius: 0.8rem;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 600;
     text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
 }
 
 .home-right-side {
     flex: 1;
-    background-color: var(--color-1)
+    position: relative;
+    overflow: hidden;
+}
+
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 100%);
+    z-index: 1;
 }
 
 .home-bg-image {
-    /*background: url() no-repeat center center;*/
-    background-size: cover;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
-/*.app-container {*/
-/*    font-family: Arial, sans-serif;*/
-/*    background-color: #181818;*/
-/*    color: #fff;*/
-/*    min-height: 100vh;*/
-/*}*/
+/* Animations */
+.animate-fade-in {
+    animation: fadeIn 1s ease-out;
+}
+
+.animate-slide-up {
+    animation: slideUp 1s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .home-header {
+        font-size: 2.8rem;
+    }
+    
+    .home-description {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .event-container {
+        flex-direction: column;
+    }
+    
+    .home-left-side {
+        padding: 10% 5%;
+    }
+    
+    .home-right-side {
+        height: 50vh;
+    }
+    
+    .home-header {
+        font-size: 2.2rem;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+    }
+    
+    .btn-primary, .btn-secondary {
+        width: 100%;
+        text-align: center;
+    }
+}

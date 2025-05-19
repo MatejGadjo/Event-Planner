@@ -10,7 +10,7 @@ import EventCarousel from "../components/EventCarousel";
 
 const Profile = ({ user }) => {
     const [userData, setUserData] = useState(null);
-    const [loading,setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (user) {
@@ -32,35 +32,45 @@ const Profile = ({ user }) => {
         }
     }, [user]);
 
-
-
     return (
         <div className="app-container">
-            <Navbar user={user}></Navbar>
-            <div className={"main-container"}>
-                <div>
-                    <Sidebar></Sidebar>
-                </div>
-                <div className="whole-container">
+            <Navbar user={user} />
+            <div className="main-container">
+                <Sidebar />
+                <div className="profile-main-card">
+                    <div className="whole-container">
+                        <div className="profile-info-box">
+                            <div className="profile-greetings">
+                                {loading ? (
+                                    <div className="loading-skeleton">Loading...</div>
+                                ) : (
+                                    <div>
+                                        {userData ? (
+                                            <h2>Здраво, {userData.firstName} {userData.lastName}</h2>
+                                        ) : (
+                                            <h2>Здраво, Anonymous User</h2>
+                                        )}
+                                    </div>
+                                )}
+                                <button className="profile-create-button">
+                                    Огласи на настан
+                                </button>
+                            </div>
 
-                    <div className="profile-info-box">
-                        <div className="profile-greetings">
-                            {loading ? (
-                                <div>Loading...</div>
-                            ) : (
-                                <div>
-                                    {userData ? (
-                                            <div>
-                                                <h2>Здраво, {userData.firstName} {userData.lastName}</h2>
-                                            </div>
-                                    ) : (
-                                        <div>
-
-                                        <h2>Здраво, Anonymous User</h2>
-                                        </div>
-                                    )}
-
+                            <div className="profile-items-box">
+                                <h3>Твои настани</h3>
+                                <div className="profile-events-section">
+                                    <EventCarousel />
                                 </div>
+                                
+                                <h3>Менаџирај ги своите ресурси</h3>
+                                <div className="profile-items-section">
+                                    <button className="profile-add-button" aria-label="Add new resource">
+                                        +
+                                    </button>
+                                    <ItemCarousel />
+                                </div>
+<<<<<<< Updated upstream
                             )}
                             <a href="/createevent" className="profile-create-button-link"><button className="profile-create-button">Огласи настан</button></a>
 
@@ -75,19 +85,23 @@ const Profile = ({ user }) => {
                             <div className="profile-items-section">
                                 <div className="profile-add-button">+</div>
                                 <ItemCarousel></ItemCarousel>
+=======
+>>>>>>> Stashed changes
                             </div>
                         </div>
-                    </div>
-                    <div className="profile-events-box">
-                        <h3>Резервирани ресурси</h3>
-                        <ul>
-                            {Array.from({ length: 25 }).map((_, index) => (
-                                <li>Име на настан {index+1}</li>
-                            ))}
-                        </ul>
+
+                        <div className="profile-events-box">
+                            <h3>Резервирани ресурси</h3>
+                            <ul>
+                                {Array.from({ length: 25 }).map((_, index) => (
+                                    <li key={index}>
+                                        Име на настан {index + 1}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
                     </div>
                 </div>
-
             </div>
         </div>
     );
