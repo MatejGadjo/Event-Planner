@@ -6,6 +6,7 @@ import UserList from './pages/UsersList'
 import Register from './pages/Register'
 import AddResource from './pages/AddResource'
 import EventDetail from './pages/EventDetail'
+import EventCreate from './pages/EventCreate'
 import Profile from "./pages/Profile.jsx";
 import ListItems from "./components/Example/ListItems.jsx";
 import Login from "./pages/Login.jsx";
@@ -40,6 +41,7 @@ function App() {
           <Route path="/login" element={<Login />}/>
           <Route path='/addresource' element={<AddResource />} />
           <Route path='/eventdetail' element={<EventDetail />} />
+          <Route path='/createevent' element={<EventCreate user={user} />} />
 
           <Route path='/list' element={<ListItems />} />
         </Routes>

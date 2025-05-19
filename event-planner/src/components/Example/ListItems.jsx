@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+import "../../App.css";
+import "../css/styles.css"
+
 const ListItems = () => {
     const [categories, setCategories] = useState([]);
+    const [expandedCategories, setExpandedCategories] = useState({});
+    const [expandedSubcategories, setExpandedSubcategories] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -11,7 +16,6 @@ const ListItems = () => {
             try {
                 const { data } = await axios.get("http://localhost:3000/api/items");
 
-                // Group data by categories and subcategories
                 const categoryMap = new Map();
 
                 data.forEach(item => {
@@ -40,10 +44,12 @@ const ListItems = () => {
                     }
                 });
 
-                setCategories(Array.from(categoryMap.values()).map(cat => ({
+                const finalCategories = Array.from(categoryMap.values()).map(cat => ({
                     ...cat,
                     subcategories: Array.from(cat.subcategories.values())
-                })));
+                }));
+
+                setCategories(finalCategories);
             } catch (err) {
                 setError(err.message);
             }
@@ -53,62 +59,71 @@ const ListItems = () => {
         fetchData();
     }, []);
 
+    const toggleCategory = (id) => {
+        setExpandedCategories(prev => {
+            const newExpanded = {};
+            categories.forEach(category => {
+                newExpanded[category.id] = category.id === id ? !prev[id] : false;
+            });
+            return newExpanded;
+        });
+
+        // Collapse all subcategories when switching categories
+        setExpandedSubcategories({});
+    };
+
+    const toggleSubcategory = (id) => {
+        setExpandedSubcategories(prev => ({
+            ...prev,
+            [id]: !prev[id]
+        }));
+    };
+
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error: {error}</p>;
 
     return (
-        <div>
-            <h1>Categories, Subcategories, and Items</h1>
-            <ol>
+        <div className={"list-resources"}>
+            <ul className={"list-item"}>
                 {categories.map(category => (
-                    <li key={category.id}>
-                        <strong>{category.name}</strong>
-                        <div>
-                            {category.items.map(item => (
-                                <span className="list-pill" key={item.id}>
-                                    <span>
-                                        {item.name}
-                                    </span>
-                                    <span className="list-pill">
-                                        +
-                                    </span>
-                                </span>
-                            ))}
-                            {category.subcategories.map(subcategory => (
-                                <span key={subcategory.id}>
-                                    <span>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                               fill="currentColor" className="bi bi-arrow-return-right"
-                                               viewBox="0 0 16 16">
-  <path fill-rule="evenodd"
-        d="M1.5 1.5A.5.5 0 0 0 1 2v4.8a2.5 2.5 0 0 0 2.5 2.5h9.793l-3.347 3.346a.5.5 0 0 0 .708.708l4.2-4.2a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 8.3H3.5A1.5 1.5 0 0 1 2 6.8V2a.5.5 0 0 0-.5-.5"/>
-</svg>
-                                    </span>
-                                    <span>
-                                        <strong>
-                                            {subcategory.name}
-                                        </strong>
-                                    </span>
-                                    <div>
-                                        {subcategory.items.map(item => (
-                                            <span className="list-pill" key={item.id}>
-                                                <span>
-                                                    {item.name}
-                                                </span>
-                                                <span className="list-pill">
-                                                    +
-                                                </span>
-                                            </span>
-                                        ))}
-                                    </div>
-                                </span>
-                            ))}
+                    <li className={"list-item"} key={category.id}>
+                        <div className={"list-item-toggle"} onClick={() => toggleCategory(category.id)}>
+                            {category.name}
                         </div>
+
+                        {expandedCategories[category.id] && (
+                            <ul className={"list-expendable-box"}>
+                                {category.items.map(item => (
+                                    <li className={"list-item"} key={item.id}>
+                                        {item.name}
+                                        <span className={"list-item-add"}>+</span>
+                                    </li>
+                                ))}
+
+                                {category.subcategories.map(sub => (
+                                    <li className={"list-item"} key={sub.id}>
+                                        <div className={"list-item-toggle"} onClick={() => toggleSubcategory(sub.id)}>
+                                            {sub.name}
+                                        </div>
+                                        {expandedSubcategories[sub.id] && (
+                                            <ul className={"list-expendable-box"}>
+                                                {sub.items.map(item => (
+                                                    <li className={"list-item"} key={item.id} >
+                                                        {item.name}
+                                                        <span className={"list-item-add"}>+</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
                     </li>
                 ))}
-            </ol>
+            </ul>
         </div>
     );
-}
+};
 
 export default ListItems;

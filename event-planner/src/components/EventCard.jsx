@@ -21,11 +21,11 @@ const EventCard = ({index}) => {
             <div className="card-bottom-section">
                 <div className="card-pills">
                     {Array.from({ length: Math.floor(Math.random()*(20-1)+1) }).map((_, index) => (
-                        <span className="card-pill"> pill{index}<span>{Math.floor(Math.random()*(1000-1)+1)}</span></span>
+                        <span className="card-pill"> Ресурс {index}<span>{Math.floor(Math.random()*(1000-1)+1)}</span></span>
                     ))}
                 </div>
                 <div className="card-bottom-info">
-                    <p className="card-num-offers">0 понуди</p>
+                    <p className="card-budget">Буџет: $$$</p>
                     <p className="card-offer">понуди ресурси</p>
                 </div>
             </div>
