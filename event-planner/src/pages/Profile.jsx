@@ -7,7 +7,6 @@ import "./css/Profile.css";
 import "../App.css";
 import ItemCarousel from "../components/ItemCarousel.jsx";
 import EventCarousel from "../components/EventCarousel";
-import UserGrid from "../components/UserGrid.jsx";
 
 const Profile = ({ user }) => {
     const [userData, setUserData] = useState(null);
@@ -63,7 +62,7 @@ const Profile = ({ user }) => {
 
                                 </div>
                             )}
-                            <button className="profile-create-button">Огласи настан</button>
+                            <a href="/createevent" className="profile-create-button-link"><button className="profile-create-button">Огласи настан</button></a>
 
                         </div>
 

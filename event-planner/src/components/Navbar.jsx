@@ -39,11 +39,16 @@ const Navbar = ({ user }) => {
         }
     };
 
+    function userFromEmail(email) {
+        const clearUsername = email.split('@')[0]
+        return clearUsername;
+    }
+
     return (
         <nav className="navbar">
             <div><a href='/' className="logo">E·QUIP<sup> мк</sup></a></div>
             <div className="search-bar">
-                <input type="text" placeholder="Search" className="search-input" />
+                <input type="text" placeholder="Пребарувај настани" className="search-input" />
                 <button className="search-button">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                          className="bi bi-search" viewBox="0 0 16 16">
@@ -57,7 +62,7 @@ const Navbar = ({ user }) => {
 
                 {currentUser ? (
                     <div style={{display: "flex", alignItems: "center"}}>
-                        <strong>Здраво, <a href="/profile">{currentUser.email} </a> </strong>
+                        <strong>Здраво, <a href="/profile">{userFromEmail(currentUser.email)} </a> </strong>
                         <Logout/>
                     </div>
                 ) : (

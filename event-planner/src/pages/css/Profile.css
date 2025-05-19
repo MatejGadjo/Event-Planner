@@ -23,6 +23,7 @@
     min-width: 30%;
     max-height: 40rem;
     margin: 0 4rem;
+    padding: 0 1rem;
     border-radius: var(--radius-big);
 }
 
@@ -30,7 +31,6 @@
     border-radius: var(--radius-small);
     display: flex;
     float: right;
-    margin: auto 1rem auto auto;
     width: 14rem;
     height: 4rem;
     background-color: var(--color-4);
@@ -45,6 +45,10 @@
     height: 5rem;
     background-color: var(--color-3);
     color: var(--color-7);
+}
+
+.profile-create-button-link {
+    margin: auto 1rem auto auto;
 }
 
 .item-cards-grid {
