@@ -1,7 +1,23 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { auth } from '../Firebase/firebase';
 import './css/Home.css';
 
 const Home = () => {
+    const navigate = useNavigate();
+
+    const handleCreateEvent = () => {
+        if (auth.currentUser) {
+            navigate('/createevent');
+        } else {
+            navigate('/login');
+        }
+    };
+
+    const handleBrowseEvents = () => {
+        navigate('/events/public');
+    };
+
     return (
         <div className="event-container">
             <div className="home-left-side">
@@ -16,12 +32,12 @@ const Home = () => {
                         потреби да дојдат до вас.
                     </p>
                     <div className="cta-buttons">
-                        <a href="/createevent" className="btn-primary">
+                        <button onClick={handleCreateEvent} className="btn-primary">
                             ОГЛАСИ НАСТАН
-                        </a>
-                        <a href="/events/public" className="btn-secondary">
+                        </button>
+                        <button onClick={handleBrowseEvents} className="btn-secondary">
                             ПРЕБАРУВАЈ НАСТАНИ
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>

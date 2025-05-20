@@ -1,5 +1,5 @@
 import './App.css'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router'
 import Home from "./pages/Home"
 import EventList from './pages/EventList'
 import UserList from './pages/UsersList'
@@ -14,7 +14,6 @@ import {onAuthStateChanged} from "firebase/auth";
 import { auth } from "./Firebase/firebase.jsx";
 import {useEffect, useState} from "react";
 import {AuthProvider} from "./Firebase/AuthContext.jsx";
-import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -33,18 +32,10 @@ function App() {
         <div className="app-wrapper">
           <Routes>
             <Route path='/' element={<Home />}/>
-            <Route path='/profile' element={
-              <ProtectedRoute>
-                <Profile user={user}/>
-              </ProtectedRoute>
-            }/>
+            <Route path='/profile' element={<Profile user={user}/>}/>
             <Route path='/events/public' element={<EventList user={user} />} />
             <Route path='/events/private' element={<EventList user={user}/>} />
-            <Route path='/users' element={
-              <ProtectedRoute>
-                <UserList user={user}/>
-              </ProtectedRoute>
-            } />
+            <Route path='/users' element={<UserList user={user}/>} />
             <Route path='/register' element={<Register />} />
             <Route path="/login" element={<Login />}/>
             <Route path='/addresource' element={<AddResource />} />
@@ -59,4 +50,4 @@ function App() {
   )
 }
 
-export default App
+export default App 

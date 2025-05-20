@@ -1,0 +1,77 @@
+.event-grid-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.search-bar {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.search-input {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    border: 2px solid var(--color-6);
+    border-radius: 25px;
+    font-size: 1rem;
+    color: var(--color-2);
+    background-color: var(--color-7);
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--color-4);
+    box-shadow: 0 0 0 3px rgba(var(--color-4-rgb), 0.1);
+}
+
+.search-input::placeholder {
+    color: var(--color-1);
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    width: 100%;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem;
+    text-align: center;
+    color: var(--color-4);
+}
+
+.empty-state p {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state-subtitle {
+    color: var(--color-5);
+    font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+    .search-bar {
+        padding: 0 1rem;
+    }
+
+    .search-input {
+        padding: 0.75rem 1.25rem;
+        font-size: 0.95rem;
+    }
+
+    .cards-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+} 

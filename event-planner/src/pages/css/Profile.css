@@ -261,3 +261,52 @@
         padding: 1.5rem 0.5rem;
     }
 }
+
+.reserved-resources-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.reserved-resource-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: var(--color-6);
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    transition: transform 0.2s ease;
+}
+
+.reserved-resource-item:hover {
+    transform: translateX(5px);
+}
+
+.reserved-resource-item .resource-name {
+    font-weight: 500;
+    color: var(--color-2);
+    flex: 1;
+}
+
+.reserved-resource-item .event-name {
+    color: var(--color-1);
+    margin: 0 1rem;
+    font-style: italic;
+}
+
+.reserved-resource-item .resource-price {
+    font-weight: 600;
+    color: var(--color-4);
+}
+
+.no-resources {
+    text-align: center;
+    color: var(--color-1);
+    padding: 2rem;
+    background: var(--color-6);
+    border-radius: 0.5rem;
+    font-style: italic;
+}

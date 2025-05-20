@@ -17,7 +17,6 @@ const Register = () => {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
-
                 navigate("/profile");
             }
         });
@@ -49,6 +48,7 @@ const Register = () => {
     return (
         <div className="register-container">
             <div className="register-form">
+                <div className="logo-home">E·QUIP<sup> мк</sup></div>
                 <h2>Регистрација</h2>
                 <form onSubmit={handleRegister}>
                     <div className="form-input">
