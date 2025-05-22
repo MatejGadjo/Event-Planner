@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { doc, getDoc, collection, query, where, onSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, onSnapshot, addDoc, serverTimestamp, getDocs } from "firebase/firestore";
 import { db } from "../Firebase/firebase";
 import Navbar from "../components/Navbar.jsx";
 import Sidebar from "../components/Sidebar.jsx";
@@ -20,6 +20,7 @@ const EventDetail = ({ user }) => {
     const [selectedResources, setSelectedResources] = useState([]);
     const [resourcePrices, setResourcePrices] = useState({});
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+    const [completedResources, setCompletedResources] = useState({});
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -34,6 +35,28 @@ const EventDetail = ({ user }) => {
                     if (creatorDoc.exists()) {
                         setEventCreator(creatorDoc.data());
                     }
+
+                    // Fetch completed resources status
+                    const offersQuery = query(
+                        collection(db, "offers"),
+                        where("eventId", "==", eventDoc.id),
+                        where("status", "==", "accepted")
+                    );
+                    const offersSnapshot = await getDocs(offersQuery);
+                    const completed = {};
+                    
+                    offersSnapshot.forEach(doc => {
+                        const offerData = doc.data();
+                        offerData.resources.forEach(resource => {
+                            const resourceName = resource.name.toLowerCase().trim();
+                            if (!completed[resourceName]) {
+                                completed[resourceName] = 0;
+                            }
+                            completed[resourceName] += resource.quantity || 1;
+                        });
+                    });
+                    
+                    setCompletedResources(completed);
                 } else {
                     setError("Настанот не е пронајден");
                 }
@@ -49,7 +72,7 @@ const EventDetail = ({ user }) => {
     }, [id]);
 
     useEffect(() => {
-        if (!user) return;
+        if (!user || !event) return;
 
         const resourcesQuery = query(
             collection(db, "resources"),
@@ -61,13 +84,35 @@ const EventDetail = ({ user }) => {
                 id: doc.id,
                 ...doc.data()
             }));
-            setUserResources(resourcesList);
+            
+            // Filter resources based on event requirements and available quantity
+            const filteredResources = resourcesList.filter(resource => {
+                // If event has no required resources, don't show any resources
+                if (!event.resources || event.resources.length === 0) {
+                    return false;
+                }
+                
+                // Find matching required resource
+                const matchingResource = event.resources.find(reqResource => 
+                    reqResource.name.toLowerCase().trim() === resource.name.toLowerCase().trim()
+                );
+
+                if (!matchingResource) return false;
+
+                // Check if we have enough quantity
+                const requiredQuantity = matchingResource.quantity || 1;
+                const availableQuantity = resource.available || 0;
+                
+                return availableQuantity >= requiredQuantity;
+            });
+            
+            setUserResources(filteredResources);
         }, (error) => {
             console.error("Error fetching resources:", error);
         });
 
         return () => unsubscribe();
-    }, [user]);
+    }, [user, event]);
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -111,12 +156,21 @@ const EventDetail = ({ user }) => {
                 eventCreatorId: event.userId,
                 offererId: user.uid,
                 offererName: `${user.firstName} ${user.lastName}`,
-                resources: selectedResources.map(resource => ({
-                    id: resource.id,
-                    name: resource.name,
-                    category: resource.category,
-                    price: resourcePrices[resource.id]
-                })),
+                resources: selectedResources.map(resource => {
+                    // Find the matching required resource to get the quantity
+                    const matchingResource = event.resources.find(reqResource => 
+                        reqResource.name.toLowerCase().trim() === resource.name.toLowerCase().trim()
+                    );
+                    const requiredQuantity = matchingResource?.quantity || 1;
+
+                    return {
+                        id: resource.id,
+                        name: resource.name,
+                        category: resource.category,
+                        price: resourcePrices[resource.id],
+                        quantity: requiredQuantity // Include the quantity in the offer
+                    };
+                }),
                 totalPrice: selectedResources.reduce((sum, resource) => sum + (resourcePrices[resource.id] || 0), 0),
                 status: 'pending',
                 createdAt: serverTimestamp()
@@ -130,9 +184,13 @@ const EventDetail = ({ user }) => {
                 userId: event.userId,
                 type: 'new_offer',
                 title: 'Нова понуда за ресурси',
-                message: `${user.firstName || ''} ${user.lastName || ''} понуди ${selectedResources.map(resource => 
-                    `${resource.name} за ${resourcePrices[resource.id]} ден.`
-                ).join(', ')} за вашиот настан "${event.title}"`,
+                message: `${user.firstName || ''} ${user.lastName || ''} понуди ${selectedResources.map(resource => {
+                    const matchingResource = event.resources.find(reqResource => 
+                        reqResource.name.toLowerCase().trim() === resource.name.toLowerCase().trim()
+                    );
+                    const quantity = matchingResource?.quantity || 1;
+                    return `${quantity}x ${resource.name} за ${resourcePrices[resource.id]} ден.`;
+                }).join(', ')} за вашиот настан "${event.title}"`,
                 offerId: offerRef.id,
                 eventId: event.id,
                 read: false,
@@ -260,12 +318,30 @@ const EventDetail = ({ user }) => {
                             <h3>Потребни ресурси</h3>
                             {event.resources && event.resources.length > 0 ? (
                                 <div className="resources-list">
-                                    {event.resources.map((resource, index) => (
-                                        <div key={index} className="resource-item">
-                                            <span className="resource-name">{resource.name}</span>
-                                            <span className="resource-category">{resource.category}</span>
-                                        </div>
-                                    ))}
+                                    {event.resources.map((resource, index) => {
+                                        const resourceName = resource.name.toLowerCase().trim();
+                                        const completedQuantity = completedResources[resourceName] || 0;
+                                        const remainingQuantity = Math.max(0, (resource.quantity || 1) - completedQuantity);
+                                        const isCompleted = remainingQuantity === 0;
+
+                                        return (
+                                            <div key={index} className={`resource-item ${isCompleted ? 'completed' : ''}`}>
+                                                <div className="resource-info">
+                                                    <span className="resource-name">{resource.name}</span>
+                                                    <span className="resource-category">{resource.category}</span>
+                                                </div>
+                                                <div className="resource-quantity">
+                                                    <span className="quantity-label">Потребна количина:</span>
+                                                    <span className="quantity-value">
+                                                        {remainingQuantity} / {resource.quantity || 1}
+                                                    </span>
+                                                    {isCompleted && (
+                                                        <span className="completed-badge">Завршено</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             ) : (
                                 <p>Нема потребни ресурси</p>
@@ -306,50 +382,73 @@ const EventDetail = ({ user }) => {
                             <div className="popup-content" onClick={e => e.stopPropagation()}>
                                 <button className="close-button" onClick={() => setShowOfferPopup(false)}>×</button>
                                 <h2>Понуди ресурси</h2>
-                                <form onSubmit={handleSubmitOffer}>
-                                    <div className="form-group">
-                                        <label>Избери ресурси:</label>
-                                        <div className="resources-list">
-                                            {userResources.map((resource) => (
-                                                <div 
-                                                    key={resource.id} 
-                                                    className={`resource-item ${selectedResources.some(r => r.id === resource.id) ? 'selected' : ''}`}
-                                                    onClick={() => handleResourceSelect(resource)}
-                                                >
-                                                    <div className="resource-info">
-                                                        <span className="resource-name">{resource.name}</span>
-                                                        <span className="resource-category">{resource.category}</span>
-                                                    </div>
-                                                    <div className="resource-stats">
-                                                        <span className="resource-quantity">Достапни: {resource.available}</span>
-                                                    </div>
-                                                    {selectedResources.some(r => r.id === resource.id) && (
-                                                        <div className="resource-price">
-                                                            <input
-                                                                type="number"
-                                                                min="0"
-                                                                step="0.01"
-                                                                value={resourcePrices[resource.id] || ''}
-                                                                onChange={(e) => handlePriceChange(resource.id, parseFloat(e.target.value))}
-                                                                onClick={(e) => e.stopPropagation()}
-                                                                placeholder="Цена"
-                                                                required
-                                                            />
-                                                            <span className="currency">ден.</span>
+                                {userResources.length > 0 ? (
+                                    <form onSubmit={handleSubmitOffer}>
+                                        <div className="form-group">
+                                            <label>Избери ресурси:</label>
+                                            <div className="resources-list">
+                                                {userResources.map((resource) => {
+                                                    const matchingResource = event.resources.find(reqResource => 
+                                                        reqResource.name.toLowerCase().trim() === resource.name.toLowerCase().trim()
+                                                    );
+                                                    const requiredQuantity = matchingResource?.quantity || 1;
+                                                    
+                                                    return (
+                                                        <div 
+                                                            key={resource.id} 
+                                                            className={`resource-item ${selectedResources.some(r => r.id === resource.id) ? 'selected' : ''}`}
+                                                            onClick={() => handleResourceSelect(resource)}
+                                                        >
+                                                            <div className="resource-info">
+                                                                <span className="resource-name">{resource.name}</span>
+                                                                <span className="resource-category">{resource.category}</span>
+                                                            </div>
+                                                            <div className="resource-stats">
+                                                                <span className="resource-quantity">
+                                                                    Достапни: {resource.available} / Потребни: {requiredQuantity}
+                                                                </span>
+                                                            </div>
+                                                            {selectedResources.some(r => r.id === resource.id) && (
+                                                                <div className="resource-price">
+                                                                    <input
+                                                                        type="number"
+                                                                        min="0"
+                                                                        step="0.01"
+                                                                        value={resourcePrices[resource.id] || ''}
+                                                                        onChange={(e) => handlePriceChange(resource.id, parseFloat(e.target.value))}
+                                                                        onClick={(e) => e.stopPropagation()}
+                                                                        placeholder="Цена"
+                                                                        required
+                                                                    />
+                                                                    <span className="currency">ден.</span>
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                    )}
-                                                </div>
-                                            ))}
+                                                    );
+                                                })}
+                                            </div>
                                         </div>
+                                        <button 
+                                            type="submit" 
+                                            className="submit-button"
+                                            disabled={!isFormValid()}
+                                        >
+                                            Испрати
+                                        </button>
+                                    </form>
+                                ) : (
+                                    <div className="no-resources-message">
+                                        <p>Немате доволно ресурси за понуда.</p>
+                                        <p>Потребни ресурси:</p>
+                                        <ul>
+                                            {event.resources.map((resource, index) => (
+                                                <li key={index}>
+                                                    {resource.name} - Потребни: {resource.quantity || 1}
+                                                </li>
+                                            ))}
+                                        </ul>
                                     </div>
-                                    <button 
-                                        type="submit" 
-                                        className="submit-button"
-                                        disabled={!isFormValid()}
-                                    >
-                                        Испрати
-                                    </button>
-                                </form>
+                                )}
                             </div>
                         </div>
                     )}

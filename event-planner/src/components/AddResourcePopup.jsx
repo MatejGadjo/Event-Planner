@@ -5,13 +5,30 @@ import './css/AddResourcePopup.css';
 
 const AddResourcePopup = ({ isOpen, onClose, user }) => {
     const [formData, setFormData] = useState({
-        name: '',
         description: '',
         quantity: 1,
-        category: ''
+        category: '',
+        itemType: ''
     });
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+
+    const categories = {
+        "Инструменти": ["Бубњеви", "Тапан", "Конги", "Тарабука", "Гитара", "Бас Гитара", "Виолина", "Виолончело", "Контрабас", "Харфа", "Хармоника", "Синтисајзер", "Пијано", "Труба", "Флејта", "Кларинет", "Саксофон", "Гајда", "Зурла"],
+        "Угостителство": ["Бармен", "Келнер", "Готвач"],
+        "Кетеринг": ["Чаши", "Тањири", "Прибор", "Чаршаф", "Прилог храна", "Камиони за храна", "Машинa за сладолед", "Машина за пуканки", "Машина за шеќерна волна", "Фонтани за чоколадо"],
+        "Монтажна Опрема": ["Микрофон", "Звучник", "Миксета", "Камера", "Проектор", "LED дисплеј", "Рефлектор", "LED панел", "Ласер", "Платформа", "Шатор", "Подиум", "Бекдроп", "Барикади", "Надстрешница", "Фото Кабина", "Пренослив тоалет"],
+        "Мебел": ["Маса", "Барска маса", "Клуб маса", "Стол", "Барски стол", "Сепаре стол", "Клупа", "Песочна вреќа"],
+        "Декорации": ["Балони", "Реквизити", "Цветови"],
+        "Изведувачи": ["Пејач", "Бенд", "Диџеј", "Хор", "Танцувачи", "Играорци", "Мажоретки"],
+        "Транспорт": ["Автомобил", "Лимузина", "Патничко Комбе", "Автобус", "Товарно Возило", "Пајтон"],
+        "Рекламни Услуги": ["Флаери", "Банери", "Онлајн маркетинг", "Брендирани подароци"],
+        "Фото и Видео Сервиси": ["Фотограф", "Камерман", "Дрон камера"],
+        "Модна Промоција": ["Стилист", "Шминкер", "Фризер"],
+        "Техничка Поддршка": ["Аудио Техничар", "Видео Tехничар", "Инсталатер", "Електричар", "Агрегат"],
+        "Безбедносна Поддршка": ["Обезбедување", "Надзорна опрема", "Системи за контрола на влез", "Медицински тим", "ППЕ Апарат"],
+        "Забавни Активности": ["Топка", "Гол", "Кош", "Мрежа", "Комедијант", "Детски аниматор", "Куклена претстава", "VR/AR Кабина", "Интерактивен панел", "Тркачки симулатор"]
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -21,6 +38,7 @@ const AddResourcePopup = ({ isOpen, onClose, user }) => {
         try {
             const resourceData = {
                 ...formData,
+                name: formData.itemType || formData.category,
                 userId: user.uid,
                 createdAt: new Date().toISOString(),
                 available: formData.quantity
@@ -40,7 +58,9 @@ const AddResourcePopup = ({ isOpen, onClose, user }) => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: value
+            [name]: value,
+            // Reset itemType when category changes
+            ...(name === 'category' && { itemType: '' })
         }));
     };
 
@@ -55,26 +75,13 @@ const AddResourcePopup = ({ isOpen, onClose, user }) => {
                 <h2>Додади нов ресурс</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label htmlFor="name">Име на ресурсот</label>
-                        <input
-                            type="text"
-                            id="name"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            required
-                            placeholder="Внесете име на ресурсот"
-                        />
-                    </div>
-
-                    <div className="form-group">
                         <label htmlFor="description">Опис</label>
                         <textarea
                             id="description"
                             name="description"
                             value={formData.description}
                             onChange={handleChange}
-                            placeholder="Внесете опис на ресурсот"
+                            placeholder="Внесете опис"
                             rows="3"
                         />
                     </div>
@@ -89,6 +96,7 @@ const AddResourcePopup = ({ isOpen, onClose, user }) => {
                             onChange={handleChange}
                             min="1"
                             required
+                            placeholder="Внесете количина"
                         />
                     </div>
 
@@ -102,13 +110,33 @@ const AddResourcePopup = ({ isOpen, onClose, user }) => {
                             required
                         >
                             <option value="">Изберете категорија</option>
-                            <option value="sound">Звучна опрема</option>
-                            <option value="light">Светлосна опрема</option>
-                            <option value="stage">Сцена</option>
-                            <option value="furniture">Мебел</option>
-                            <option value="other">Друго</option>
+                            {Object.keys(categories).map(category => (
+                                <option key={category} value={category}>
+                                    {category}
+                                </option>
+                            ))}
                         </select>
                     </div>
+
+                    {formData.category && categories[formData.category] && (
+                        <div className="form-group">
+                            <label htmlFor="itemType">Тип</label>
+                            <select
+                                id="itemType"
+                                name="itemType"
+                                value={formData.itemType}
+                                onChange={handleChange}
+                                required
+                            >
+                                <option value="">Изберете тип</option>
+                                {categories[formData.category].map(type => (
+                                    <option key={type} value={type}>
+                                        {type}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
 
                     {error && <p className="error-message">{error}</p>}
                     
@@ -117,7 +145,7 @@ const AddResourcePopup = ({ isOpen, onClose, user }) => {
                         className="submit-button"
                         disabled={isLoading}
                     >
-                        {isLoading ? 'Додавање...' : 'Додади ресурс'}
+                        {isLoading ? 'Додавање...' : 'Додади'}
                     </button>
                 </form>
             </div>

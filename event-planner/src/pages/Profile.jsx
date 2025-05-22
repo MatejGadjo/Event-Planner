@@ -59,11 +59,30 @@ const Profile = ({ user }) => {
                     if (resourceData.reservedFor) {
                         const eventDoc = await getDoc(doc(db, "events", resourceData.reservedFor));
                         if (eventDoc.exists()) {
+                            // Get the offer details to get the quantity
+                            const offersQuery = query(
+                                collection(db, "offers"),
+                                where("eventId", "==", resourceData.reservedFor),
+                                where("offererId", "==", user.uid),
+                                where("status", "==", "accepted")
+                            );
+                            const offersSnapshot = await getDocs(offersQuery);
+                            let quantity = 1; // Default quantity
+
+                            if (!offersSnapshot.empty) {
+                                const offerData = offersSnapshot.docs[0].data();
+                                const resourceInOffer = offerData.resources.find(r => r.id === resourceDoc.id);
+                                if (resourceInOffer) {
+                                    quantity = resourceInOffer.quantity || 1;
+                                }
+                            }
+
                             resources.push({
                                 id: resourceDoc.id,
                                 name: resourceData.name,
                                 eventName: eventDoc.data().title,
-                                price: resourceData.price
+                                price: resourceData.price,
+                                quantity: quantity
                             });
                         }
                     }
@@ -90,20 +109,22 @@ const Profile = ({ user }) => {
                                 {loading ? (
                                     <div className="loading-skeleton">Loading...</div>
                                 ) : (
-                                    <div>
-                                        {userData ? (
-                                            <h2>Здраво, {userData.firstName} {userData.lastName}</h2>
-                                        ) : (
-                                            <h2>Здраво, Anonymous User</h2>
-                                        )}
+                                    <div className="profile-header">
+                                        <div className="profile-info">
+                                            {userData ? (
+                                                <h2>Здраво, {userData.firstName} {userData.lastName}</h2>
+                                            ) : (
+                                                <h2>Здраво, Anonymous User</h2>
+                                            )}
+                                            <button 
+                                                className="profile-create-button"
+                                                onClick={() => navigate('/createevent')}
+                                            >
+                                                Креирај настан
+                                            </button>
+                                        </div>
                                     </div>
                                 )}
-                                <button 
-                                    className="profile-create-button"
-                                    onClick={() => navigate('/createevent')}
-                                >
-                                    Креирај настан
-                                </button>
                             </div>
 
                             <div className="profile-items-box">
@@ -132,7 +153,10 @@ const Profile = ({ user }) => {
                                 <ul className="reserved-resources-list">
                                     {reservedResources.map((resource) => (
                                         <li key={resource.id} className="reserved-resource-item">
-                                            <span className="resource-name">{resource.name}</span>
+                                            <div className="resource-info">
+                                                <span className="resource-name">{resource.name}</span>
+                                                <span className="resource-quantity">Количина: {resource.quantity}</span>
+                                            </div>
                                             <span className="event-name">за {resource.eventName}</span>
                                             <span className="resource-price">{resource.price}</span>
                                         </li>

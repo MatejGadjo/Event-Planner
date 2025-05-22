@@ -21,55 +21,27 @@ const EventCreate = ({ user }) => {
     });
     const [error, setError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [availableResources, setAvailableResources] = useState([]);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [selectedResource, setSelectedResource] = useState(null);
-    const [resourceOwners, setResourceOwners] = useState({});
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [selectedType, setSelectedType] = useState('');
+    const [showQuantityDialog, setShowQuantityDialog] = useState(false);
+    const [selectedTypeForQuantity, setSelectedTypeForQuantity] = useState(null);
+    const [quantity, setQuantity] = useState(1);
 
-    useEffect(() => {
-        if (!user) return;
-
-        const resourcesQuery = query(
-            collection(db, "resources")
-        );
-
-        const unsubscribe = onSnapshot(resourcesQuery, async (snapshot) => {
-            const resourcesList = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            setAvailableResources(resourcesList);
-
-            // Fetch owner names for each resource
-            const owners = {};
-            for (const resource of resourcesList) {
-                if (!owners[resource.userId]) {
-                    const userDoc = await getDoc(doc(db, "users", resource.userId));
-                    if (userDoc.exists()) {
-                        const userData = userDoc.data();
-                        owners[resource.userId] = `${userData.firstName} ${userData.lastName}`;
-                    }
-                }
-            }
-            setResourceOwners(owners);
-        }, (error) => {
-            console.error("Error fetching resources:", error);
-        });
-
-        return () => unsubscribe();
-    }, [user]);
-
-    const filteredResources = availableResources.filter(resource => 
-        resource.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        resource.id.toString().includes(searchQuery)
-    );
-
-    const handleResourceClick = (resource) => {
-        setSelectedResource(resource);
-    };
-
-    const closeResourceDetails = () => {
-        setSelectedResource(null);
+    const categories = {
+        "Инструменти": ["Бубњеви", "Тапан", "Конги", "Тарабука", "Гитара", "Бас Гитара", "Виолина", "Виолончело", "Контрабас", "Харфа", "Хармоника", "Синтисајзер", "Пијано", "Труба", "Флејта", "Кларинет", "Саксофон", "Гајда", "Зурла"],
+        "Угостителство": ["Бармен", "Келнер", "Готвач"],
+        "Кетеринг": ["Чаши", "Тањири", "Прибор", "Чаршаф", "Прилог храна", "Камиони за храна", "Машинa за сладолед", "Машина за пуканки", "Машина за шеќерна волна", "Фонтани за чоколадо"],
+        "Монтажна Опрема": ["Микрофон", "Звучник", "Миксета", "Камера", "Проектор", "LED дисплеј", "Рефлектор", "LED панел", "Ласер", "Платформа", "Шатор", "Подиум", "Бекдроп", "Барикади", "Надстрешница", "Фото Кабина", "Пренослив тоалет"],
+        "Мебел": ["Маса", "Барска маса", "Клуб маса", "Стол", "Барски стол", "Сепаре стол", "Клупа", "Песочна вреќа"],
+        "Декорации": ["Балони", "Реквизити", "Цветови"],
+        "Изведувачи": ["Пејач", "Бенд", "Диџеј", "Хор", "Танцувачи", "Играорци", "Мажоретки"],
+        "Транспорт": ["Автомобил", "Лимузина", "Патничко Комбе", "Автобус", "Товарно Возило", "Пајтон"],
+        "Рекламни Услуги": ["Флаери", "Банери", "Онлајн маркетинг", "Брендирани подароци"],
+        "Фото и Видео Сервиси": ["Фотограф", "Камерман", "Дрон камера"],
+        "Модна Промоција": ["Стилист", "Шминкер", "Фризер"],
+        "Техничка Поддршка": ["Аудио Техничар", "Видео Tехничар", "Инсталатер", "Електричар", "Агрегат"],
+        "Безбедносна Поддршка": ["Обезбедување", "Надзорна опрема", "Системи за контрола на влез", "Медицински тим", "ППЕ Апарат"],
+        "Забавни Активности": ["Топка", "Гол", "Кош", "Мрежа", "Комедијант", "Детски аниматор", "Куклена претстава", "VR/AR Кабина", "Интерактивен панел", "Тркачки симулатор"]
     };
 
     const handleSubmit = async (e) => {
@@ -125,11 +97,51 @@ const EventCreate = ({ user }) => {
         }));
     };
 
-    const addResource = (resource) => {
+    const handleTypeClick = (type) => {
+        setSelectedTypeForQuantity(type);
+        setQuantity(1);
+        setShowQuantityDialog(true);
+    };
+
+    const handleQuantitySubmit = () => {
+        if (selectedTypeForQuantity) {
+            const newResource = {
+                id: Date.now().toString(),
+                name: selectedTypeForQuantity,
+                category: selectedCategory,
+                itemType: selectedTypeForQuantity,
+                quantity: quantity
+            };
+            
+            setFormData(prev => ({
+                ...prev,
+                resources: [...prev.resources, newResource]
+            }));
+
+            setShowQuantityDialog(false);
+            setSelectedTypeForQuantity(null);
+            setQuantity(1);
+        }
+    };
+
+    const addResource = (type, quantity) => {
+        const newResource = {
+            id: Date.now().toString(),
+            name: type,
+            category: selectedCategory,
+            itemType: type,
+            quantity: quantity
+        };
+        
         setFormData(prev => ({
             ...prev,
-            resources: [...prev.resources, resource]
+            resources: [...prev.resources, newResource]
         }));
+    };
+
+    const getFilteredTypes = () => {
+        if (!selectedCategory) return [];
+        return categories[selectedCategory] || [];
     };
 
     return (
@@ -231,7 +243,7 @@ const EventCreate = ({ user }) => {
                                     <div className="card-pills">
                                         {formData.resources.map((resource, index) => (
                                             <span key={index} className="card-pill">
-                                                {resource.name}
+                                                {resource.name} ({resource.quantity})
                                                 <button 
                                                     type="button"
                                                     className="remove-resource"
@@ -261,67 +273,77 @@ const EventCreate = ({ user }) => {
                     </form>
 
                     <div className="event-form-resources-list">
-                        <h3>Достапни ресурси</h3>
-                        <div className="search-bar">
-                            <input 
-                                type="search" 
-                                placeholder="Пребарувај ресурси" 
-                                className="search-input"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                            <button className="search-button">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                     className="bi bi-search" viewBox="0 0 16 16">
-                                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
-                                </svg>
-                            </button>
+                        <h3>Додади ресурси</h3>
+                        <div className="resource-filters">
+                            <div className="form-group">
+                                <label htmlFor="category">Категорија</label>
+                                <select
+                                    id="category"
+                                    value={selectedCategory}
+                                    onChange={(e) => {
+                                        setSelectedCategory(e.target.value);
+                                        setSelectedType('');
+                                    }}
+                                    required
+                                >
+                                    {Object.keys(categories).map(category => (
+                                        <option key={category} value={category}>
+                                            {category}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
+
                         <div className="resources-list">
-                            {filteredResources.map((resource) => (
+                            {getFilteredTypes().map(type => (
                                 <div 
-                                    key={resource.id} 
+                                    key={type} 
                                     className="resource-item"
-                                    onClick={() => handleResourceClick(resource)}
+                                    onClick={() => handleTypeClick(type)}
                                 >
                                     <div className="resource-info">
-                                        <span className="resource-name">{resource.name}</span>
-                                        <span className="resource-owner">
-                                            {resource.userId === user.uid ? 'Ваш ресурс' : resourceOwners[resource.userId] || 'Непознат корисник'}
-                                        </span>
-                                    </div>
-                                    <div className="resource-status">
-                                        <span className="status-badge">Достапни</span>
+                                        <h4>{type}</h4>
+                                        <span className="resource-status">Достапни</span>
                                     </div>
                                 </div>
                             ))}
                         </div>
-                    </div>
 
-                    {selectedResource && (
-                        <div className="resource-details-modal">
-                            <div className="resource-details-content">
-                                <button className="close-button" onClick={closeResourceDetails}>×</button>
-                                <h3>{selectedResource.name}</h3>
-                                <div className="resource-details-info">
-                                    <p><strong>Категорија:</strong> {selectedResource.category}</p>
-                                    <p><strong>Опис:</strong> {selectedResource.description}</p>
-                                    <p><strong>Вкупна количина:</strong> {selectedResource.totalQuantity}</p>
-                                    <p><strong>Сопственик:</strong> {selectedResource.userId === user.uid ? 'Вие' : resourceOwners[selectedResource.userId] || 'Непознат корисник'}</p>
+                        {showQuantityDialog && (
+                            <div className="quantity-dialog">
+                                <div className="quantity-dialog-content">
+                                    <h3>Внесете количина</h3>
+                                    <div className="quantity-input">
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            value={quantity}
+                                            onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+                                        />
+                                    </div>
+                                    <div className="quantity-dialog-buttons">
+                                        <button 
+                                            className="cancel-button"
+                                            onClick={() => {
+                                                setShowQuantityDialog(false);
+                                                setSelectedTypeForQuantity(null);
+                                                setQuantity(1);
+                                            }}
+                                        >
+                                            Откажи
+                                        </button>
+                                        <button 
+                                            className="confirm-button"
+                                            onClick={handleQuantitySubmit}
+                                        >
+                                            Потврди
+                                        </button>
+                                    </div>
                                 </div>
-                                <button 
-                                    className="add-resource-button"
-                                    onClick={() => {
-                                        addResource(selectedResource);
-                                        closeResourceDetails();
-                                    }}
-                                    disabled={formData.resources.some(r => r.id === selectedResource.id)}
-                                >
-                                    Додади ресурс
-                                </button>
                             </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

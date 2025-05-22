@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, where, orderBy, onSnapshot, updateDoc, doc, getDoc, addDoc } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot, updateDoc, doc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../Firebase/firebase';
 import './css/NotificationBell.css';
 
@@ -103,13 +103,25 @@ const NotificationBell = ({ user }) => {
             const offerData = offer.data();
 
             if (status === 'accepted') {
-                // Mark resources as reserved
+                // Update each resource's available quantity
                 for (const resource of offerData.resources) {
-                    await updateDoc(doc(db, "resources", resource.id), {
-                        status: 'reserved',
-                        reservedBy: offerData.offererId,
-                        reservedFor: offerData.eventId
-                    });
+                    const resourceRef = doc(db, "resources", resource.id);
+                    const resourceDoc = await getDoc(resourceRef);
+                    
+                    if (resourceDoc.exists()) {
+                        const resourceData = resourceDoc.data();
+                        const currentAvailable = resourceData.available || 0;
+                        // Get the quantity from the offer data
+                        const offeredQuantity = resource.quantity || 1;
+                        const newAvailable = Math.max(0, currentAvailable - offeredQuantity);
+
+                        await updateDoc(resourceRef, {
+                            available: newAvailable,
+                            status: 'reserved',
+                            reservedBy: offerData.offererId,
+                            reservedFor: offerData.eventId
+                        });
+                    }
                 }
 
                 // Create a notification for the offerer
@@ -117,11 +129,11 @@ const NotificationBell = ({ user }) => {
                     userId: offerData.offererId,
                     type: 'offer_response',
                     title: 'Понудата е прифатена',
-                    message: `Вашата понуда за "${offerData.eventTitle}" е прифатена! Ресурсите се резервирани.`,
+                    message: `Вашата понуда за "${offerData.eventTitle}" е прифатена!`,
                     offerId: offerId,
                     eventId: offerData.eventId,
                     read: false,
-                    createdAt: new Date()
+                    createdAt: serverTimestamp()
                 };
 
                 await addDoc(collection(db, "notifications"), notificationData);
@@ -131,6 +143,20 @@ const NotificationBell = ({ user }) => {
                 setTimeout(() => {
                     setShowSuccessMessage(false);
                 }, 3000);
+            } else if (status === 'rejected') {
+                // Create a notification for the offerer
+                const notificationData = {
+                    userId: offerData.offererId,
+                    type: 'offer_response',
+                    title: 'Понудата е одбиена',
+                    message: `Вашата понуда за "${offerData.eventTitle}" е одбиена.`,
+                    offerId: offerId,
+                    eventId: offerData.eventId,
+                    read: false,
+                    createdAt: serverTimestamp()
+                };
+
+                await addDoc(collection(db, "notifications"), notificationData);
             }
 
             // Close the offer popup
