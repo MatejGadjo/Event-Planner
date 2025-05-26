@@ -18,18 +18,18 @@ const pool = new Pool({
   port: 5432, // Default PostgreSQL port
 });
 
-// Test database connection
+// Тестирање на конекција со базата
 pool.connect()
   .then(() => console.log('Connected to PostgreSQL'))
   .catch(err => console.error('Connection error', err.stack));
 
-// Home route
+// Почетна рутa
 app.get('/', (req, res) => {
     res.send('Welcome to the Event Planner API');
 });
 
 //// ITEMS API
-// Get all items
+// Враќа сите артикли
 app.get('/api/items', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM items_table');
@@ -40,7 +40,7 @@ app.get('/api/items', async (req, res) => {
     }
 });
 
-// Get items by category
+// Враќа артикли по категорија
 app.get('/api/items/category/:category_id', async (req, res) => {
     try {
         const { category_id } = req.params;
@@ -52,7 +52,7 @@ app.get('/api/items/category/:category_id', async (req, res) => {
     }
 });
 
-// Get items by subcategory
+// Враќа артикли по подкатегорија
 app.get('/api/items/subcategory/:subcategory_id', async (req, res) => {
     try {
         const { subcategory_id } = req.params;
@@ -66,7 +66,7 @@ app.get('/api/items/subcategory/:subcategory_id', async (req, res) => {
 
 
 //// EVENTS API
-// Get all events
+// Враќа сите настани
 app.get('/events', async (req, res) => {
     try {
         const events = await pool.query('SELECT * FROM events');
@@ -77,9 +77,10 @@ app.get('/events', async (req, res) => {
     }
 });
 
-// Create an event
+// Креира нов настан
 app.post('/events', async (req, res) => {
     const { name, date, location, description } = req.body;
+    // Проверка дали основните полиња се внесени
     if (!name || !date || !location) {
         return res.status(400).json({ message: 'Name, date, and location are required' });
     }
@@ -97,14 +98,14 @@ app.post('/events', async (req, res) => {
     }
 });
 
-
-// Get an event by ID
+// Враќа настан по ID
 app.get('/events/:id', async (req, res) => {
     const { id } = req.params;
 
     try {
         const event = await pool.query('SELECT * FROM events WHERE id = $1', [id]);
 
+        // Ако настанот не е пронајден
         if (event.rows.length === 0) {
             return res.status(404).json({ message: 'Event not found' });
         }
@@ -116,7 +117,7 @@ app.get('/events/:id', async (req, res) => {
     }
 });
 
-// Update an event
+// Ажурира настан
 app.put('/events/:id', async (req, res) => {
     const { id } = req.params;
     const { name, date, location, description } = req.body;
@@ -138,7 +139,7 @@ app.put('/events/:id', async (req, res) => {
     }
 });
 
-// Delete an event
+// Брише настан
 app.delete('/events/:id', async (req, res) => {
     const { id } = req.params;
 
@@ -158,10 +159,11 @@ app.delete('/events/:id', async (req, res) => {
 
 //// 🔹 NOTIFICATIONS API ////
 
-// Create a notification (when someone offers an item)
+// Креирање на известување (на пример, кога некој нуди артикал)
 app.post('/api/notifications', async (req, res) => {
     const { user_id, message } = req.body;
 
+    // Проверка дали корисникот и пораката се внесени
     if (!user_id || !message) {
         return res.status(400).json({ error: 'User ID and message are required' });
     }
@@ -178,7 +180,7 @@ app.post('/api/notifications', async (req, res) => {
     }
 });
 
-// Get notifications for a user
+// Враќа известувања за корисник
 app.get('/api/notifications/:user_id', async (req, res) => {
     const { user_id } = req.params;
 
@@ -194,7 +196,7 @@ app.get('/api/notifications/:user_id', async (req, res) => {
     }
 });
 
-// Mark notifications as read
+// Означува известување како прочитано
 app.put('/api/notifications/:id/read', async (req, res) => {
     const { id } = req.params;
 
@@ -215,7 +217,7 @@ app.put('/api/notifications/:id/read', async (req, res) => {
     }
 });
 
-// Start the server
+// Стартување на серверот
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });

@@ -15,17 +15,20 @@ const NotificationBell = ({ user }) => {
 
     useEffect(() => {
         if (!user) {
+            // Ако нема корисник, исчисти известувањата и бројачот за непрочитани
             setNotifications([]);
             setUnreadCount(0);
             return;
         }
 
+        // Креирај query за известувања за тековниот корисник, по датум сортирано
         const notificationsQuery = query(
             collection(db, "notifications"),
             where("userId", "==", user.uid),
             orderBy("createdAt", "desc")
         );
 
+        // Слушај во реално време промени на известувањата
         const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
             const notificationsList = snapshot.docs.map(doc => ({
                 id: doc.id,
@@ -33,6 +36,7 @@ const NotificationBell = ({ user }) => {
                 createdAt: doc.data().createdAt?.toDate()
             }));
             setNotifications(notificationsList);
+            // Пресметај колку известувања се непрочитани
             setUnreadCount(notificationsList.filter(n => !n.read).length);
         });
 
@@ -41,12 +45,14 @@ const NotificationBell = ({ user }) => {
 
     const handleNotificationClick = async (notification) => {
         if (!notification.read) {
+            // Ако известувањето е непрочитано, означи го како прочитано во базата
             try {
                 await updateDoc(doc(db, "notifications", notification.id), {
                     read: true
                 });
-                
-                const updatedNotifications = notifications.map(n => 
+
+                // Ажурирај го локалниот state за да ја намалиш бројката на непрочитани
+                const updatedNotifications = notifications.map(n =>
                     n.id === notification.id ? { ...n, read: true } : n
                 );
                 setNotifications(updatedNotifications);
@@ -57,6 +63,7 @@ const NotificationBell = ({ user }) => {
         }
 
         if (notification.type === 'new_offer') {
+            // Ако известувањето е за нова понуда, превземи детали за понудата и понудителот
             try {
                 const offerDoc = await getDoc(doc(db, "offers", notification.offerId));
                 if (offerDoc.exists()) {
@@ -72,8 +79,8 @@ const NotificationBell = ({ user }) => {
                 console.error("Error fetching offer details:", error);
             }
         } else if (notification.type === 'offer_response' && notification.title === 'Понудата е прифатена') {
+            // Ако понудата е прифатена, превземи контакт информации од креаторот на настанот
             try {
-                // Get the event creator's details
                 const eventDoc = await getDoc(doc(db, "events", notification.eventId));
                 if (eventDoc.exists()) {
                     const eventData = eventDoc.data();
@@ -91,27 +98,23 @@ const NotificationBell = ({ user }) => {
 
     const handleOfferResponse = async (offerId, status) => {
         try {
-            console.log('Handling offer response:', { offerId, status });
-
-            // Update the offer status
+            // Ажурира статусот на понудата (прифатена или одбиена)
             await updateDoc(doc(db, "offers", offerId), {
                 status: status
             });
 
-            // Get the offer details
             const offer = await getDoc(doc(db, "offers", offerId));
             const offerData = offer.data();
 
             if (status === 'accepted') {
-                // Update each resource's available quantity
+                // Ако понудата е прифатена, намали ги достапните количини од ресурсите и означи ги како резервирани
                 for (const resource of offerData.resources) {
                     const resourceRef = doc(db, "resources", resource.id);
                     const resourceDoc = await getDoc(resourceRef);
-                    
+
                     if (resourceDoc.exists()) {
                         const resourceData = resourceDoc.data();
                         const currentAvailable = resourceData.available || 0;
-                        // Get the quantity from the offer data
                         const offeredQuantity = resource.quantity || 1;
                         const newAvailable = Math.max(0, currentAvailable - offeredQuantity);
 
@@ -124,7 +127,7 @@ const NotificationBell = ({ user }) => {
                     }
                 }
 
-                // Create a notification for the offerer
+                // Креирај известување за прифатена понуда
                 const notificationData = {
                     userId: offerData.offererId,
                     type: 'offer_response',
@@ -137,14 +140,14 @@ const NotificationBell = ({ user }) => {
                 };
 
                 await addDoc(collection(db, "notifications"), notificationData);
-                
-                // Show success message
+
+                // Покази порака за успешна акција
                 setShowSuccessMessage(true);
                 setTimeout(() => {
                     setShowSuccessMessage(false);
                 }, 3000);
             } else if (status === 'rejected') {
-                // Create a notification for the offerer
+                // Ако понудата е одбиена, испрати известување за тоа
                 const notificationData = {
                     userId: offerData.offererId,
                     type: 'offer_response',
@@ -159,7 +162,7 @@ const NotificationBell = ({ user }) => {
                 await addDoc(collection(db, "notifications"), notificationData);
             }
 
-            // Close the offer popup
+            // Затвори го прозорецот со детали од понудата
             setSelectedOffer(null);
             setOfferCreator(null);
         } catch (error) {
@@ -169,7 +172,7 @@ const NotificationBell = ({ user }) => {
 
     const formatTimestamp = (timestamp) => {
         if (!timestamp) return '';
-        
+
         const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
         const now = new Date();
         const diffInSeconds = Math.floor((now - date) / 1000);
@@ -182,14 +185,16 @@ const NotificationBell = ({ user }) => {
 
     return (
         <div className="notification-bell">
-            <button 
+            <button
                 className="bell-button"
                 onClick={() => setShowDropdown(!showDropdown)}
             >
+                {/* Икона за ѕвонче */}
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
+                    <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z" />
                 </svg>
                 {unreadCount > 0 && (
+                    // Прикажи бројка на непрочитани известувања
                     <span className="notification-badge">{unreadCount}</span>
                 )}
             </button>
@@ -199,7 +204,7 @@ const NotificationBell = ({ user }) => {
                     {notifications.length > 0 ? (
                         <div className="notifications-list">
                             {notifications.map(notification => (
-                                <div 
+                                <div
                                     key={notification.id}
                                     className={`notification-item ${!notification.read ? 'unread' : ''}`}
                                     onClick={() => handleNotificationClick(notification)}
@@ -214,16 +219,17 @@ const NotificationBell = ({ user }) => {
                                         <p>{notification.message}</p>
                                         {notification.type === 'new_offer' && !notification.read && (
                                             <div className="notification-actions">
-                                                <button 
+                                                {/* Копчиња за прифаќање или одбивање на понудата */}
+                                                <button
                                                     className="accept-button"
                                                     onClick={(e) => {
-                                                        e.stopPropagation();
+                                                        e.stopPropagation(); // Прекини ја propagation за да не се отвори целиот notification
                                                         handleOfferResponse(notification.offerId, 'accepted');
                                                     }}
                                                 >
                                                     Прифати
                                                 </button>
-                                                <button 
+                                                <button
                                                     className="decline-button"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
@@ -257,7 +263,7 @@ const NotificationBell = ({ user }) => {
                     <div className="contact-window" onClick={e => e.stopPropagation()}>
                         <button className="close-button" onClick={() => setShowContactWindow(false)}>×</button>
                         <h2>Контакт информации</h2>
-                        
+
                         <div className="contact-details">
                             <div className="contact-info">
                                 <p><strong>Име:</strong> {contactUser.firstName} {contactUser.lastName}</p>
@@ -274,7 +280,7 @@ const NotificationBell = ({ user }) => {
                     <div className="offer-popup" onClick={e => e.stopPropagation()}>
                         <button className="close-button" onClick={() => setSelectedOffer(null)}>×</button>
                         <h2>Детали за понудата</h2>
-                        
+
                         <div className="offer-details">
                             <h3>Понудител</h3>
                             <div className="contact-info">
@@ -298,7 +304,7 @@ const NotificationBell = ({ user }) => {
                             </div>
 
                             <div className="offer-actions">
-                                <button 
+                                <button
                                     className="accept-button"
                                     onClick={() => {
                                         console.log('Accept clicked for offer:', selectedOffer.id);
@@ -307,7 +313,7 @@ const NotificationBell = ({ user }) => {
                                 >
                                     Прифати
                                 </button>
-                                <button 
+                                <button
                                     className="decline-button"
                                     onClick={() => {
                                         console.log('Decline clicked for offer:', selectedOffer.id);
@@ -325,4 +331,4 @@ const NotificationBell = ({ user }) => {
     );
 };
 
-export default NotificationBell; 
+export default NotificationBell;

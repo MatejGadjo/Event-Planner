@@ -16,6 +16,7 @@ const UserGrid = () => {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
+                // Вчитување на сите корисници од Firestore
                 const usersCollection = collection(db, "users");
                 const usersSnapshot = await getDocs(usersCollection);
                 const usersList = usersSnapshot.docs.map(doc => ({
@@ -35,13 +36,14 @@ const UserGrid = () => {
     }, []);
 
     useEffect(() => {
+        // Филтрирање на корисниците според внесениот текст во пребарувачот
         if (searchQuery.trim() === '') {
             setFilteredUsers(users);
             return;
         }
 
         const query = searchQuery.toLowerCase();
-        const filtered = users.filter(user => 
+        const filtered = users.filter(user =>
             user.firstName?.toLowerCase().includes(query) ||
             user.lastName?.toLowerCase().includes(query) ||
             user.email?.toLowerCase().includes(query)
@@ -53,6 +55,7 @@ const UserGrid = () => {
         setSelectedUser(user);
         setLoadingResources(true);
         try {
+            // Вчитување на ресурсите кои припаѓаат на избраниот корисник
             const resourcesQuery = query(
                 collection(db, "resources"),
                 where("userId", "==", user.id)
@@ -106,7 +109,7 @@ const UserGrid = () => {
                                     </div>
                                 )}
                             </div>
-                            <button 
+                            <button
                                 className="details-button"
                                 onClick={() => handleDetailsClick(user)}
                             >
@@ -120,7 +123,7 @@ const UserGrid = () => {
             {selectedUser && (
                 <div className="modal-overlay">
                     <div className="modal-content">
-                        <button 
+                        <button
                             className="close-button"
                             onClick={() => setSelectedUser(null)}
                         >
