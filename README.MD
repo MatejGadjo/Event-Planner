@@ -1,3 +1,5 @@
+https://matejgadjo.github.io/Event-Planner/
+
 # Документација за Event Planner API
 
 ## Вовед
